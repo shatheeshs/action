@@ -35,8 +35,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 2023.02.0001.${{ steps.create_release.outputs.id }}
-        release_name: 2023.02.0001.${{ steps.create_release.outputs.id }}
+        tag_name: 2023.02.0001.${{ github.run_number }}
+        release_name: 2023.02.0001.${{ github.run_number }}
         draft: true
         prerelease: false
         
