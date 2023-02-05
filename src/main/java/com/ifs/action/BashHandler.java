@@ -6,8 +6,6 @@
 package com.ifs.action;
 
 import static com.ifs.action.BaseActionTopComponent.PROP;
-import static com.ifs.action.UpdateHandler.path_bash;
-import static com.ifs.action.UpdateHandler.readFileTxt;
 import java.io.IOException;
 
 /**

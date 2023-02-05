@@ -49,6 +49,7 @@ public final class BaseActionTopComponent extends TopComponent {
    private BashHandler bashInstance = null;
 
    public BaseActionTopComponent() {
+      bashInstance = BashHandler.getInstance();
       initComponents();
       overrideInit();
       setName(Bundle.CTL_BaseActionTopComponent());
@@ -108,6 +109,12 @@ public final class BaseActionTopComponent extends TopComponent {
       gitPullButton.addActionListener(new java.awt.event.ActionListener() {
          public void actionPerformed(java.awt.event.ActionEvent evt) {
             gitPullButtonActionPerformed(evt);
+         }
+      });
+
+      releasePathComboBox.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            releasePathComboBoxActionPerformed(evt);
          }
       });
 
@@ -201,7 +208,7 @@ public final class BaseActionTopComponent extends TopComponent {
       String cmd = "cd " + bashInstance.getRepositoryPath() + " && " + "git pull origin " + gitPullText.getText();
       if (!Utils.isEmptyOrNull(gitPullText.getText())) {
          int result = JOptionPane.showConfirmDialog(this, "Local Repo : " + bashInstance.getRepositoryPath()
-                 + "\nRemote Origin : " + gitPullText.getText() , "Pulling out....",
+                 + "\nRemote Origin : " + gitPullText.getText(), "Pulling out....",
                  JOptionPane.YES_NO_OPTION,
                  JOptionPane.QUESTION_MESSAGE);
          if (result == JOptionPane.YES_OPTION) {
@@ -227,6 +234,12 @@ public final class BaseActionTopComponent extends TopComponent {
       }
    }//GEN-LAST:event_checkOutButtonActionPerformed
 
+   private void releasePathComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_releasePathComboBoxActionPerformed
+      if (bashInstance != null) {
+         bashInstance.setRepositoryPath(releasePathComboBox.getSelectedItem().toString());
+      }
+   }//GEN-LAST:event_releasePathComboBoxActionPerformed
+
    private void overrideInit() {
       infoLabel.setText("@author satrlk");
       releasePathComboBox.addItem(PROP.getProperty("23R2"));
@@ -234,10 +247,7 @@ public final class BaseActionTopComponent extends TopComponent {
       releasePathComboBox.addItem(PROP.getProperty("22R2"));
       releasePathComboBox.addItem(PROP.getProperty("22R1"));
       releasePathComboBox.addItem(PROP.getProperty("21R2"));
-      releasePathComboBox.setSelectedIndex(-1);
-
-      bashInstance = BashHandler.getInstance();
-      bashInstance.setRepositoryPath(releasePathComboBox.getSelectedItem().toString());
+      releasePathComboBox.setSelectedIndex(0);
    }
 
    private static Properties initProperties() {
