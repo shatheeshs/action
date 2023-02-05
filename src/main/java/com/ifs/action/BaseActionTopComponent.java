@@ -5,6 +5,13 @@
  */
 package com.ifs.action;
 
+import java.awt.Desktop;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Properties;
+import javax.swing.JOptionPane;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.LifecycleManager;
 import org.openide.awt.ActionID;
@@ -32,11 +39,14 @@ import org.openide.util.NbBundle.Messages;
         preferredID = "BaseActionTopComponent"
 )
 @Messages({
-   "CTL_BaseActionAction=BaseAction",
-   "CTL_BaseActionTopComponent=BaseAction Window",
-   "HINT_BaseActionTopComponent=This is a BaseAction window"
+   "CTL_BaseActionAction=Easy Actions",
+   "CTL_BaseActionTopComponent=Easy Actions",
+   "HINT_BaseActionTopComponent=This is the Easy Actions window"
 })
 public final class BaseActionTopComponent extends TopComponent {
+
+   public static Properties PROP = initProperties();
+   private BashHandler bashInstance = null;
 
    public BaseActionTopComponent() {
       initComponents();
@@ -44,7 +54,6 @@ public final class BaseActionTopComponent extends TopComponent {
       setName(Bundle.CTL_BaseActionTopComponent());
       setToolTipText(Bundle.HINT_BaseActionTopComponent());
       putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
-
    }
 
    /**
@@ -59,6 +68,16 @@ public final class BaseActionTopComponent extends TopComponent {
       jPanel1 = new javax.swing.JPanel();
       superExitButton = new javax.swing.JButton();
       infoLabel = new javax.swing.JLabel();
+      googleButton = new javax.swing.JButton();
+      gitPullText = new javax.swing.JTextField();
+      javax.swing.JButton gitPullButton = new javax.swing.JButton();
+      releasePathComboBox = new javax.swing.JComboBox<>();
+      checkOutButton = new javax.swing.JButton();
+
+      setBackground(new java.awt.Color(102, 102, 102));
+
+      jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+      jPanel1.setName(""); // NOI18N
 
       org.openide.awt.Mnemonics.setLocalizedText(superExitButton, org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.superExitButton.text")); // NOI18N
       superExitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -67,7 +86,38 @@ public final class BaseActionTopComponent extends TopComponent {
          }
       });
 
+      infoLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
       org.openide.awt.Mnemonics.setLocalizedText(infoLabel, org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.infoLabel.text")); // NOI18N
+
+      org.openide.awt.Mnemonics.setLocalizedText(googleButton, org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.googleButton.text")); // NOI18N
+      googleButton.setActionCommand(org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.googleButton.actionCommand")); // NOI18N
+      googleButton.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            googleButtonActionPerformed(evt);
+         }
+      });
+
+      gitPullText.setText(org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.gitPullText.text")); // NOI18N
+      gitPullText.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            gitPullTextActionPerformed(evt);
+         }
+      });
+
+      org.openide.awt.Mnemonics.setLocalizedText(gitPullButton, org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.gitPullButton.text_1")); // NOI18N
+      gitPullButton.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            gitPullButtonActionPerformed(evt);
+         }
+      });
+
+      org.openide.awt.Mnemonics.setLocalizedText(checkOutButton, org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.checkOutButton.text_1")); // NOI18N
+      checkOutButton.setToolTipText(org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.checkOutButton.toolTipText")); // NOI18N
+      checkOutButton.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            checkOutButtonActionPerformed(evt);
+         }
+      });
 
       javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
       jPanel1.setLayout(jPanel1Layout);
@@ -76,18 +126,37 @@ public final class BaseActionTopComponent extends TopComponent {
          .addGroup(jPanel1Layout.createSequentialGroup()
             .addContainerGap()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-               .addComponent(superExitButton)
-               .addComponent(infoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addContainerGap(265, Short.MAX_VALUE))
+               .addGroup(jPanel1Layout.createSequentialGroup()
+                  .addComponent(checkOutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addComponent(superExitButton)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addComponent(googleButton, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
+                  .addComponent(infoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+               .addComponent(releasePathComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+               .addGroup(jPanel1Layout.createSequentialGroup()
+                  .addComponent(gitPullText)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addComponent(gitPullButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addContainerGap())
       );
       jPanel1Layout.setVerticalGroup(
          jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
          .addGroup(jPanel1Layout.createSequentialGroup()
             .addContainerGap()
-            .addComponent(infoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(4, 4, 4)
-            .addComponent(superExitButton)
-            .addContainerGap(217, Short.MAX_VALUE))
+            .addComponent(releasePathComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+               .addComponent(gitPullText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+               .addComponent(gitPullButton))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 173, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+               .addComponent(googleButton)
+               .addComponent(superExitButton)
+               .addComponent(checkOutButton)
+               .addComponent(infoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addContainerGap())
       );
 
       javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -101,11 +170,14 @@ public final class BaseActionTopComponent extends TopComponent {
       );
       layout.setVerticalGroup(
          layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-         .addGroup(layout.createSequentialGroup()
+         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
             .addContainerGap()
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addContainerGap())
       );
+
+      jPanel1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.jPanel1.AccessibleContext.accessibleName")); // NOI18N
+      jPanel1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(BaseActionTopComponent.class, "BaseActionTopComponent.jPanel1.AccessibleContext.accessibleDescription")); // NOI18N
    }// </editor-fold>//GEN-END:initComponents
 
    private void superExitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_superExitButtonActionPerformed
@@ -113,34 +185,93 @@ public final class BaseActionTopComponent extends TopComponent {
       LifecycleManager.getDefault().exit();
    }//GEN-LAST:event_superExitButtonActionPerformed
 
-   private void overrideInit(){
+   private void googleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_googleButtonActionPerformed
+      try {
+         Desktop.getDesktop().browse(new URI("https://google.com/"));
+      } catch (Exception ex) {
+         System.out.println("URL Malformed.");
+      }
+   }//GEN-LAST:event_googleButtonActionPerformed
+
+   private void gitPullTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gitPullTextActionPerformed
+
+   }//GEN-LAST:event_gitPullTextActionPerformed
+
+   private void gitPullButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gitPullButtonActionPerformed
+      String cmd = "cd " + bashInstance.getRepositoryPath() + " && " + "git pull origin " + gitPullText.getText();
+      if (!Utils.isEmptyOrNull(gitPullText.getText())) {
+         int result = JOptionPane.showConfirmDialog(this, "Local Repo : " + bashInstance.getRepositoryPath()
+                 + "\nRemote Origin : " + gitPullText.getText() , "Pulling out....",
+                 JOptionPane.YES_NO_OPTION,
+                 JOptionPane.QUESTION_MESSAGE);
+         if (result == JOptionPane.YES_OPTION) {
+            bashInstance.runCommand(cmd);
+         }
+      } else {
+         JOptionPane.showMessageDialog(this, "Please check missing inputs", "Error", JOptionPane.ERROR_MESSAGE);
+      }
+   }//GEN-LAST:event_gitPullButtonActionPerformed
+
+   private void checkOutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkOutButtonActionPerformed
+      String cmd = "cd " + bashInstance.getRepositoryPath() + " && " + "git checkout " + gitPullText.getText();
+      if (!Utils.isEmptyOrNull(gitPullText.getText())) {
+         int result = JOptionPane.showConfirmDialog(this, "Local Repo : " + bashInstance.getRepositoryPath()
+                 + "\nRemote Origin : " + gitPullText.getText(), "Checking out",
+                 JOptionPane.YES_NO_OPTION,
+                 JOptionPane.QUESTION_MESSAGE);
+         if (result == JOptionPane.YES_OPTION) {
+            bashInstance.runCommand(cmd);
+         }
+      } else {
+         JOptionPane.showMessageDialog(this, "Please check missing inputs", "Error", JOptionPane.ERROR_MESSAGE);
+      }
+   }//GEN-LAST:event_checkOutButtonActionPerformed
+
+   private void overrideInit() {
       infoLabel.setText("@author satrlk");
+      releasePathComboBox.addItem(PROP.getProperty("23R2"));
+      releasePathComboBox.addItem(PROP.getProperty("23R1"));
+      releasePathComboBox.addItem(PROP.getProperty("22R2"));
+      releasePathComboBox.addItem(PROP.getProperty("22R1"));
+      releasePathComboBox.addItem(PROP.getProperty("21R2"));
+      releasePathComboBox.setSelectedIndex(-1);
+
+      bashInstance = BashHandler.getInstance();
+      bashInstance.setRepositoryPath(releasePathComboBox.getSelectedItem().toString());
+   }
+
+   private static Properties initProperties() {
+      Properties prop = new Properties();
+      try ( InputStream input = new FileInputStream("C:\\IFS\\base.properties")) {
+         prop.load(input);
+      } catch (IOException ex) {
+         ex.printStackTrace();
+      }
+      return prop;
    }
 
    // Variables declaration - do not modify//GEN-BEGIN:variables
+   private javax.swing.JButton checkOutButton;
+   private javax.swing.JTextField gitPullText;
+   private javax.swing.JButton googleButton;
    private static javax.swing.JLabel infoLabel;
    private javax.swing.JPanel jPanel1;
+   private javax.swing.JComboBox<String> releasePathComboBox;
    private javax.swing.JButton superExitButton;
    // End of variables declaration//GEN-END:variables
    @Override
    public void componentOpened() {
-      // TODO add custom code on component opening
    }
 
    @Override
    public void componentClosed() {
-      // TODO add custom code on component closing
    }
 
    void writeProperties(java.util.Properties p) {
-      // better to version settings since initial version as advocated at
-      // http://wiki.apidesign.org/wiki/PropertyFiles
       p.setProperty("version", "1.0");
-      // TODO store your settings
    }
 
    void readProperties(java.util.Properties p) {
       String version = p.getProperty("version");
-      // TODO read your settings according to their version
    }
 }
